@@ -1,0 +1,76 @@
+/* -------------------------------------------------------------------------
+   CSS ของ Blacklist Center - ตกแต่ง UI
+   ------------------------------------------------------------------------- */
+
+body { 
+    font-family: 'Prompt', sans-serif; 
+    -webkit-font-smoothing: antialiased; 
+    scroll-behavior: smooth;
+}
+
+.hidden { display: none; }
+
+/* Navbar Buttons */
+.nav-btn { color: #64748b; transition: all 0.2s; outline: none; }
+.nav-btn:hover { color: #1e293b; }
+
+.active-nav { color: #dc2626 !important; position: relative; }
+.active-nav::after { 
+    content: ''; position: absolute; bottom: -4px; left: 10%; width: 80%; height: 3px; 
+    background: #dc2626; border-radius: 99px; 
+}
+
+/* Animations */
+.page-section { animation: fadeInUp 0.4s ease-out; }
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Forms */
+.custom-input {
+    width: 100%; padding: 0.8rem 1rem; border-radius: 1rem; border: 1px solid #e2e8f0;
+    outline: none; transition: 0.2s; background: #fff;
+}
+.custom-input:focus { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }
+
+/* Modal */
+.modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); z-index: 100; display: flex;
+    align-items: center; justify-content: center; backdrop-filter: blur(4px);
+}
+.modal-content {
+    background: white; padding: 2rem; border-radius: 2rem;
+    max-width: 90%; max-height: 90vh; overflow-y: auto;
+    position: relative; animation: zoomIn 0.3s ease-out;
+}
+@keyframes zoomIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Utils */
+.max-w-xs { max-width: 180px; }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 768px) {
+    .nav-container { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
+}
+
+/* Global Alert Toast */
+.global-alert {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: #1e293b; color: white; padding: 0.85rem 1.5rem;
+    border-radius: 1rem; font-size: 0.95rem; font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999;
+    opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-width: 90vw; text-align: center; pointer-events: none;
+}
+.global-alert.show {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+}
+.global-alert.success { background: #16a34a; }
+.global-alert.error   { background: #dc2626; }
+.global-alert.warning { background: #d97706; }
+.global-alert.info    { background: #2563eb; }

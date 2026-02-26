@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blacklist Center - ระบบตรวจสอบบัญชีดำ</title>
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- เชื่อมต่อไฟล์ CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- แถบเมนูหลัก (Navigation Bar) -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- โลโก้ -->
+                <div class="flex-shrink-0 cursor-pointer mr-4" onclick="window.showPage('searchPage')">
+                    <span class="font-bold text-xl md:text-2xl text-red-600">🚫 Blacklist Center</span>
+                </div>
+
+                <!-- ปุ่มเมนู -->
+                <div class="flex nav-container space-x-4 md:space-x-6 text-sm md:text-base items-center">
+                    <button id="nav-search" onclick="window.showPage('searchPage')" class="nav-btn font-medium py-2">🔍
+                        ค้นหา</button>
+                    <button id="nav-list" onclick="window.showPage('casesPage')" class="nav-btn font-medium py-2">📋
+                        รายการแจ้งโกง</button>
+                    <button id="nav-report" onclick="window.showPage('reportPage')"
+                        class="nav-btn font-medium py-2 text-red-600 font-bold">📢 แจ้งโกง</button>
+                    <button id="nav-appeal" onclick="window.showPage('appealPage')" class="nav-btn font-medium py-2">🛠️
+                        แก้สถานะ</button>
+                    <button id="nav-admin" onclick="window.showPage('adminPage')"
+                        class="nav-btn font-bold py-2 text-blue-600 hidden">🔑 Admin</button>
+
+                    <div class="h-6 w-[1px] bg-slate-200 mx-2"></div>
+
+                    <button id="nav-login" onclick="window.showPage('loginPage')"
+                        class="bg-slate-800 text-white px-4 py-1.5 rounded-lg hover:bg-slate-700 transition">เข้าสู่ระบบ</button>
+                    <div id="user-info" class="hidden flex items-center gap-3">
+                        <span id="display-name" class="text-xs font-bold text-slate-500"></span>
+                        <button onclick="window.handleLogout()"
+                            class="text-slate-400 hover:text-red-600 text-xs underline">ออกจากระบบ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-10">
+
+        <!-- หน้า: ค้นหา -->
+        <div id="searchPage" class="page-section">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">ตรวจสอบประวัติคนโกง</h1>
+                <p class="text-slate-500 text-lg">เช็คให้ชัวร์ก่อนโอน รู้ทันมิจฉาชีพ</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 max-w-3xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input type="text" id="searchInput" placeholder="เลขบัญชี หรือ ไอดีที่โกง..."
+                        class="flex-1 p-4 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 text-lg">
+                    <button onclick="window.handleSearch()"
+                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-2xl transition shadow-lg">ค้นหาทันที</button>
+                </div>
+            </div>
+            <div id="searchResultArea" class="mt-12 hidden max-w-3xl mx-auto text-left">
+                <h3 class="text-xl font-semibold mb-4 text-slate-700 border-b pb-2">ผลการค้นหา</h3>
+                <div id="resultList" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- หน้า: รายชื่อบัญชีเฝ้าระวัง (Public List) -->
+        <div id="casesPage" class="page-section hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-slate-800">📋 รายชื่อบัญชีเฝ้าระวัง</h2>
+                <span id="caseCount" class="text-sm bg-slate-200 text-slate-600 px-3 py-1 rounded-full font-medium">0
+                    รายการ</span>
+            </div>
+            <div class="overflow-x-auto bg-white rounded-3xl shadow-xl border border-slate-100">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b">
+                        <tr class="text-slate-500 text-xs uppercase tracking-wider">
+                            <th class="p-5 font-semibold">วันที่แจ้ง</th>
+                            <th class="p-5 font-semibold">ผู้แจ้ง</th>
+                            <th class="p-5 font-semibold text-red-600">ไอดีที่โกง</th>
+                            <th class="p-5 font-semibold text-center">หลักฐาน</th>
+                            <th class="p-5 font-semibold">ประเภท</th>
+                            <th class="p-5 font-semibold">รายละเอียดเหตุการณ์</th>
+                            <th class="p-5 font-semibold text-orange-600">การเจรจา/แก้ไข</th>
+                            <th class="p-5 font-semibold text-center">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="caseTableBody" class="divide-y divide-slate-50 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- หน้า: แจ้งบัญชีคนโกง -->
+        <div id="reportPage" class="page-section hidden">
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-slate-100 max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6 text-slate-800 flex items-center">
+                    <span class="bg-red-100 p-2 rounded-full mr-3 text-2xl">📢</span> แจ้งบัญชีคนโกง
+                </h2>
+                <form id="reportForm" onsubmit="window.handleReportSubmit(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">ไอดีที่โกง *</label>
+                            <input type="text" id="reportName" required class="custom-input"
+                                placeholder="ระบุไอดีมิจฉาชีพ">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">ประเภทการโกง *</label>
+                            <select id="reportType" required class="custom-input appearance-none">
+                                <option value="โกง">โกง</option>
+                                <option value="โดนดึงไอดี">โดนดึงไอดี</option>
+                                <option value="ไอดีล็อค-แบน">ไอดีล็อค-แบน</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">รายละเอียดเหตุการณ์ *</label>
+                        <textarea id="reportDetail" rows="4" required class="custom-input resize-none"
+                            placeholder="อธิบายสิ่งที่เกิดขึ้น..."></textarea>
+                    </div>
+                    <div class="mb-8">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">แนบหลักฐาน (รูปสลิป/แชท) *</label>
+                        <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center bg-slate-50">
+                            <input type="file" id="reportFile" accept="image/*" required
+                                class="text-sm text-slate-500 w-full cursor-pointer">
+                        </div>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition shadow-lg text-lg">บันทึกข้อมูล
+                        Blacklist</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- หน้า: แก้สถานะ -->
+        <div id="appealPage" class="page-section hidden">
+            <div
+                class="bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-slate-100 max-w-3xl mx-auto text-center">
+                <h2 class="text-2xl font-bold mb-6 text-slate-800">🛠️ ยื่นคำร้องขอยกเว้นสถานะ</h2>
+                <form id="appealForm" onsubmit="window.handleAppealSubmit(event)">
+                    <input type="text" id="appealTarget" required class="custom-input mb-4"
+                        placeholder="ไอดีที่ต้องการแก้สถานะ">
+                    <div class="mb-4 text-left">
+                        <label class="block text-slate-700 font-medium mb-2 text-sm">หลักฐานการคืนเงินหรือเจรจาจบแล้ว
+                            *</label>
+                        <input type="file" id="appealFile" accept="image/*" required
+                            class="text-sm text-slate-500 w-full">
+                    </div>
+                    <textarea id="appealDetail" rows="3" required class="custom-input mb-8 resize-none"
+                        placeholder="รายละเอียดการเจรจาเพื่อแสดงหน้าบ้าน..."></textarea>
+                    <button type="submit"
+                        class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-lg">ส่งคำร้องให้แอดมิน</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- หน้า: Admin Dashboard -->
+        <div id="adminPage" class="page-section hidden">
+            <h2 class="text-3xl font-bold text-slate-800 mb-8 flex items-center gap-3">🔑 แผงควบคุมผู้ดูแลระบบ</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center text-left">
+                <div class="bg-white p-8 rounded-3xl shadow border-l-8 border-red-500">
+                    <p class="text-slate-400 text-xs font-bold uppercase mb-2">แจ้งโกงรอตรวจสอบ</p>
+                    <p id="admin-pending-count" class="text-5xl font-bold text-slate-700">0</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow border-l-8 border-blue-500">
+                    <p class="text-slate-400 text-xs font-bold uppercase mb-2">คำร้องใหม่</p>
+                    <p id="admin-appeal-count" class="text-5xl font-bold text-slate-700">0</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow border-l-8 border-green-500">
+                    <p class="text-slate-400 text-xs font-bold uppercase mb-2">จัดการแล้ว</p>
+                    <p id="admin-success-count" class="text-5xl font-bold text-slate-700">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl p-8 mb-10">
+                <h3 class="text-xl font-bold mb-6 text-red-600 border-l-4 border-red-500 pl-4">จัดการรายการแจ้งโกงใหม่
+                </h3>
+                <div class="overflow-x-auto text-sm">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-slate-400 text-xs uppercase">
+                                <th class="pb-4 px-2">วันที่</th>
+                                <th class="pb-4 px-2">ผู้แจ้ง</th>
+                                <th class="pb-4 px-2">ไอดีที่โกง</th>
+                                <th class="pb-4 px-2">รายละเอียด</th>
+                                <th class="pb-4 px-2 text-center">รูป</th>
+                                <th class="pb-4 px-2 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-pending-scams" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl p-8">
+                <h3 class="text-xl font-bold mb-6 text-blue-600 border-l-4 border-blue-500 pl-4">จัดการคำร้องแก้สถานะ
+                </h3>
+                <div class="overflow-x-auto text-sm">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-slate-400 text-xs uppercase">
+                                <th class="pb-4 px-2">วันที่</th>
+                                <th class="pb-4 px-2">ผู้ส่ง</th>
+                                <th class="pb-4 px-2">เป้าหมาย</th>
+                                <th class="pb-4 px-2">รายละเอียดเจรจา</th>
+                                <th class="pb-4 px-2 text-center">รูป</th>
+                                <th class="pb-4 px-2 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-pending-appeals" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- หน้า: ล็อกอิน / สมัครสมาชิก -->
+        <div id="loginPage" class="page-section hidden">
+            <div class="max-w-md mx-auto bg-white p-10 rounded-3xl shadow-2xl border">
+                <div id="auth-login-box">
+                    <h2 class="text-3xl font-bold mb-8 text-center">เข้าสู่ระบบ</h2>
+                    <form onsubmit="window.handleLogin(event)">
+                        <input type="text" id="loginUser" required class="custom-input mb-4" placeholder="username">
+                        <input type="password" id="loginPass" required class="custom-input mb-8" placeholder="password">
+                        <button type="submit"
+                            class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-lg">Login</button>
+                    </form>
+                    <div class="mt-6 flex justify-between text-sm text-slate-500">
+                        <button onclick="window.toggleAuth('forgot')"
+                            class="hover:text-red-600 italic">ลืมรหัสผ่าน?</button>
+                        <button onclick="window.toggleAuth('register')"
+                            class="text-red-600 font-bold underline">สมัครสมาชิก</button>
+                    </div>
+                </div>
+
+                <div id="auth-register-box" class="hidden">
+                    <h2 class="text-3xl font-bold mb-8 text-center text-red-600">สมัครสมาชิก</h2>
+                    <form onsubmit="window.handleRegister(event)">
+                        <input type="text" id="regUser" required class="custom-input mb-4"
+                            placeholder="ชื่อผู้ใช้งาน *">
+                        <input type="email" id="regEmail" required class="custom-input mb-4" placeholder="อีเมล *">
+                        <input type="password" id="regPass" required class="custom-input mb-6" placeholder="รหัสผ่าน *">
+                        <button type="submit"
+                            class="w-full bg-red-600 text-white font-bold py-4 rounded-2xl shadow-lg">ยืนยันการสมัคร</button>
+                    </form>
+                    <button onclick="window.toggleAuth('login')"
+                        class="w-full mt-6 text-sm text-slate-400 text-center underline">กลับไปล็อกอิน</button>
+                </div>
+
+                <div id="auth-forgot-box" class="hidden text-center">
+                    <h2 class="text-2xl font-bold mb-4">กู้คืนรหัสผ่าน</h2>
+                    <p class="text-xs text-slate-500 mb-6 px-4">ระบุ Username เพื่อรับรหัสผ่าน (จำลอง)</p>
+                    <form onsubmit="window.handleForgotPassword(event)">
+                        <input type="text" id="forgotUser" required class="custom-input mb-8" placeholder="Username">
+                        <button type="submit"
+                            class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-lg">รับรหัสผ่าน</button>
+                    </form>
+                    <button onclick="window.toggleAuth('login')"
+                        class="mt-6 text-sm text-slate-400 underline">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal ดูรูปภาพ -->
+    <div id="evidenceModal" class="modal-backdrop hidden" onclick="window.closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-lg font-bold">รูปหลักฐาน</h3>
+                <button onclick="window.closeModal()"
+                    class="text-slate-400 hover:text-red-600 text-xl font-bold">✖</button>
+            </div>
+            <img id="modalImage" src="" alt="Evidence" class="w-full h-auto rounded-xl shadow-lg border">
+        </div>
+    </div>
+
+    <!-- Global Alert Toast -->
+    <div id="globalAlert" class="global-alert"></div>
+
+    <footer class="text-center py-12 text-slate-400 text-sm border-t mt-20">
+        <p>© 2026 Blacklist Center - ระบบตรวจสอบมิจฉาชีพ</p>
+    </footer>
+
+    <!-- เชื่อมต่อไฟล์ JS -->
+    <script src="script.js"></script>
+</body>
+
+</html>
