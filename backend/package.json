@@ -1,7 +1,7 @@
 {
-  "name": "blacklist-backend",
+  "name": "valorant-blacklist",
   "version": "1.0.0",
-  "description": "Blacklist Center Backend API with MongoDB",
+  "description": "center = Valorant Backend API with MongoDB",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
