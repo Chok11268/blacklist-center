@@ -26,7 +26,7 @@ app.use('/api/appeal', appealRoutes);
 
 // Health Check
 app.get('/api', (req, res) => {
-    res.json({ message: '🚀 Blacklist valorant API is running!', status: 'ok' });
+    res.json({ message: '🚀 Blacklist VALORANT API is running!', status: 'ok' });
 });
 
 // --- Connect MongoDB & Start Server ---
