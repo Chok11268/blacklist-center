@@ -119,12 +119,32 @@ router.patch('/:id/status', authMiddleware, adminMiddleware, async (req, res) =>
     }
 });
 
-// GET /api/blacklist/:id/image - ดึงรูปของรายการ (สาธารณะ)
+// GET /api/blacklist/:id/image - ดึงรูปของรายการ (สาธารณะ หรือ Admin)
 router.get('/:id/image', async (req, res) => {
     try {
         const item = await Blacklist.findById(req.params.id).select('image status');
         if (!item) return res.status(404).json({ message: 'ไม่พบข้อมูล' });
-        if (item.status === 'รอตรวจสอบ') return res.status(403).json({ message: 'รูปภาพนี้ยังรอตรวจสอบ' });
+
+        // ถ้าสถานะเป็น "รอตรวจสอบ" ให้เช็คว่าเป็นแอดมินไหม (ถ้าไม่มี token หรือไม่ใช่แอดมินจะดูไม่ได้)
+        if (item.status === 'รอตรวจสอบ') {
+            // เราจะเช็ค token ตรงนี้แบบ manual เพื่อให้ยืดหยุ่น
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                const token = authHeader.split(' ')[1];
+                const jwt = require('jsonwebtoken');
+                try {
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+                    if (decoded.isAdmin) {
+                        // กดยอมให้แอดมินดูได้
+                        return res.json({ image: item.image });
+                    }
+                } catch (e) {
+                    // token ผิด หรือหมดอายุ
+                }
+            }
+            return res.status(403).json({ message: 'รูปภาพนี้ยังรอตรวจสอบ' });
+        }
+
         res.json({ image: item.image });
     } catch (err) {
         res.status(500).json({ message: 'เกิดข้อผิดพลาด', error: err.message });
