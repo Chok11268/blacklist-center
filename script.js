@@ -4,8 +4,9 @@
  * -------------------------------------------------------------------------
  */
 
-// --- 1. Config ---
-const API_BASE = '/api';
+const API_BASE = window.location.origin.includes('localhost')
+    ? 'http://localhost:5000/api'
+    : '/api';
 
 // --- 2. State ---
 let currentUser = null;
